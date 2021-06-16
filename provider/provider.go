@@ -1,12 +1,11 @@
 package provider
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/spaceapegames/terraform-provider-example/api/client"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"address": {
@@ -27,6 +26,9 @@ func Provider() terraform.ResourceProvider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"example_item": resourceItem(),
+		},
+		DataSourcesMap: map[string]*schema.Resource{
+			"items": datasourceItem(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

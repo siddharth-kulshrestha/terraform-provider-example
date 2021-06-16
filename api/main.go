@@ -3,13 +3,16 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"github.com/spaceapegames/terraform-provider-example/api/server"
+	"fmt"
 	"io/ioutil"
 	"log"
+
+	"github.com/spaceapegames/terraform-provider-example/api/server"
 )
 
 func main() {
 	seed := flag.String("seed", "", "a file location with some data in JSON form to seed the server content")
+	port := flag.String("port", "3001", "port to execute the request....")
 	flag.Parse()
 
 	items := map[string]server.Item{}
@@ -24,8 +27,9 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-
-	itemService := server.NewService("localhost:3001", items)
+	addr := fmt.Sprintf("localhost:%s", *port)
+	log.Printf("Starting server atL %s \n", addr)
+	itemService := server.NewService(addr, items)
 	err := itemService.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
