@@ -35,6 +35,7 @@ func (s *Service) ListenAndServe() error {
 	r.HandleFunc("/item/{name}", logs(auth(s.GetItem))).Methods("GET")
 	r.HandleFunc("/item/{name}", logs(auth(s.PutItem))).Methods("PUT")
 	r.HandleFunc("/item/{name}", logs(auth(s.DeleteItem))).Methods("DELETE")
+	r.HandleFunc("/items", logs(auth(s.FilteredGet))).Methods("GET")
 
 	log.Printf("Starting server on %s", s.connectionString)
 	err := http.ListenAndServe(s.connectionString, r)

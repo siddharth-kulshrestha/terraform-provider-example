@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/spaceapegames/terraform-provider-example/api/server"
 	"io"
 	"net/http"
+
+	"github.com/spaceapegames/terraform-provider-example/api/server"
 )
 
 // Client holds all of the information required to connect to a server
@@ -92,6 +93,21 @@ func (c *Client) DeleteItem(itemName string) error {
 		return err
 	}
 	return nil
+}
+
+func (c *Client) GetFilteredItems(offset int, limit int) (*map[string]server.Item, error) {
+	if offset >= limit {
+		offset = 0
+		limit = 2
+	}
+	body, err := c.httpRequest(fmt.Sprintf("items?offset=%d&limit=%d", offset, limit), "GET", bytes.Buffer{})
+	items := map[string]server.Item{}
+	err = json.NewDecoder(body).Decode(&items)
+	if err != nil {
+		return nil, err
+	}
+	return &items, nil
+
 }
 
 func (c *Client) httpRequest(path, method string, body bytes.Buffer) (closer io.ReadCloser, err error) {

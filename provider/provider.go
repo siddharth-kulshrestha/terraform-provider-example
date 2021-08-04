@@ -28,7 +28,8 @@ func Provider() *schema.Provider {
 			"example_item": resourceItem(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"items": datasourceItem(),
+			"items":                 datasourceItem(),
+			"items_with_pagination": datasourceItems(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

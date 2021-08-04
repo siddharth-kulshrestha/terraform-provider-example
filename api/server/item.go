@@ -3,11 +3,13 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // Item represents a single Item
@@ -158,12 +160,47 @@ func (s *Service) itemExists(itemName string) bool {
 }
 
 // suffleItemTags shuffles the order of the tags within each item in the itemService.Does not lock access
-// to the itemService, expects this to be done by the calling method
+// to the itemService, expects this to be done by the calling _method
 func (s *Service) shuffleItemTags() {
 	for _, item := range s.items {
 		for i := range item.Tags {
 			j := rand.Intn(i + 1)
 			item.Tags[i], item.Tags[j] = item.Tags[j], item.Tags[i]
 		}
+	}
+}
+
+func (s *Service) FilteredGet(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("Called filtered get!!")
+	// Handling pagination via limit and offset
+	offset := 0
+	limit := 2
+	if r.URL.Query().Get("offset") != "" {
+		offset, _ = strconv.Atoi(r.URL.Query().Get("offset"))
+	}
+
+	if r.URL.Query().Get("limit") != "" {
+		limit, _ = strconv.Atoi(r.URL.Query().Get("limit"))
+	}
+
+	s.RLock()
+	defer s.RUnlock()
+
+	log.Println("Got offset: ", offset)
+	log.Println("Got limit: ", limit)
+	resp := map[string]Item{}
+
+	count := 0
+	for itemName, item := range s.items {
+		if count >= offset && count-offset < limit {
+			resp[itemName] = item
+		}
+		count++
+	}
+
+	err := json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		log.Println(err)
 	}
 }
